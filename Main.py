@@ -30,10 +30,21 @@ bot = MeinBot(command_prefix="!", intents=intents)
 async def on_ready():
     print(f" {bot.user} ist online und bereit!")
 
+@bot.command(name="sync")
+async def sync(ctx):
+    await ctx.send("Synchronisiere...")
+    await bot.tree.sync()
+    await ctx.send("Fertig!")
 # Starten
 if __name__ == '__main__':
-    # Wir nehmen "DISCORD_TOKEN", weil wir das so in Portainer eingestellt haben
     token = os.getenv("TOKEN")
+    channel_id = os.getenv("CHANNEL")
+    channel_id = int(channel_id)
+
+
+    @bot.check
+    async def global_channel_check(ctx):
+        return ctx.channel.id == channel_id
 
     if token:
         bot.run(token)
