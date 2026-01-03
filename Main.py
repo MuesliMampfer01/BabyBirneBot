@@ -1,31 +1,41 @@
 import discord
 import os
+import asyncio
+from discord.ext import commands
 from dotenv import load_dotenv
 
-intents  = discord.Intents.default()
+load_dotenv()
+
+intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
-bot = discord.Bot(intents=intents, debug_guilds=[963883042810785822])
+
+class MeinBot(commands.Bot):
+    async def setup_hook(self):
+        if os.path.exists("./cogs"):
+            for filename in os.listdir("./cogs"):
+                if filename.endswith(".py"):
+                    try:
+                        await self.load_extension(f"cogs.{filename[:-3]}")
+                        print(f"Cog geladen: {filename}")
+                    except Exception as e:
+                        print(f"Fehler beim Laden von {filename}: {e}")
+        else:
+            print("Kein 'cogs' Ordner gefunden!")
+
+bot = MeinBot(command_prefix="!", intents=intents)
+
 
 @bot.event
 async def on_ready():
-    print(f"{bot.user} ist online")
+    print(f" {bot.user} ist online und bereit!")
 
-@bot.event
-async def on_message(msg):
-    if msg.author.bot:
-        return
-    await msg.channel.send("Ich bin die Babybirne")
-
-@bot.event
-async def on_message_delete(msg):
-    await msg.channel.send(f"Eine Nachricht von {msg.author.name} wurde gelöscht: {msg.content}")
-
-
+# Starten
 if __name__ == '__main__':
-    for filename in os.listdir(".venv/cogs"):
-        if filename.endswith(".py"):
-            bot.load_extension(f"cogs.{filename[:-3]}")
+    # Wir nehmen "DISCORD_TOKEN", weil wir das so in Portainer eingestellt haben
+    token = os.getenv("TOKEN")
 
-    load_dotenv()
-    bot.run(os.getenv("TOKEN"))
+    if token:
+        bot.run(token)
+    else:
+        print("Fehler: Kein Token gefunden!")
