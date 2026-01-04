@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  discord-bot:
+    # "build: ." heißt: Nimm das Dockerfile aus dem aktuellen Ordner
+    build: .
+    container_name: discordbot
+    # Startet den Bot automatisch neu, wenn er abstürzt oder der Pi neu startet
+    restart: unless-stopped
+    # Hier sagen wir: "Nimm die Werte, die wir in Portainer eingeben"
+    environment:
+      - TOKEN=${TOKEN}
+      - CHANNEL=${CHANNEL}
