@@ -36,13 +36,13 @@ class Gambling(commands.Cog):
                 versuche -= 1
 
                 if versuche == 0:
-                    await ctx.send("Du hast verloren! Du hast alle Versuche aufgebraucht!")
+                    await ctx.send(f"Du hast verloren! Die gesuchte Zahl war {gesuchte_zahl}!")
                     break
 
                 if geratene_zahl > gesuchte_zahl:
-                    await ctx.send(f"Meine Zahl ist niedriger! (Noch {versuche} Versuche)")
+                    await ctx.send(f"Meine Zahl ist niedriger! (Noch {versuche} Versuch(e))")
                 else:
-                    await ctx.send(f"Meine Zahl ist höher! (Noch {versuche} Versuche)")
+                    await ctx.send(f"Meine Zahl ist höher! (Noch {versuche} Versuch(e))")
 
             except ValueError:
                 await ctx.send("Bitte gib eine echte Zahl ein!")
