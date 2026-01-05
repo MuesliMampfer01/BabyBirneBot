@@ -51,5 +51,14 @@ class Gambling(commands.Cog):
                 await ctx.send(f"Zu langsam! Die gesuchte Zahl war {gesuchte_zahl}")
                 break
 
+    @commands.command(name="hirse",help="hirse")
+    async def hirse(self,ctx):
+        try:
+            with open("pics/hirsebrei-suess.png", "rb") as f:
+                pic = discord.File(f, filename="hirsebrei-suess.png")
+                await ctx.send(file=pic)
+        except FileNotFoundError:
+            await ctx.send("Bild nicht gefunden")
+
 async def setup(bot):
     await bot.add_cog(Gambling(bot))
