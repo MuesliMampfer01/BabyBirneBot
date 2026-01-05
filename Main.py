@@ -38,13 +38,26 @@ async def sync(ctx):
 # Starten
 if __name__ == '__main__':
     token = os.getenv("TOKEN")
-    channel_id = os.getenv("CHANNEL")
-    channel_id = int(channel_id)
+    channel_id = os.getenv("CHANNELS")
+
+    ALLOWED_CHANNELS = []
+
+    if channel_id:
+        try:
+            ALLOWED_CHANNELS = [int(id_str) for id_str in channel_id.split(",")]
+            print(f"Erlaube Befehle in {len(ALLOWED_CHANNELS)} Kanälen.")
+        except ValueError:
+            print("Fehler bei ALLOWED_CHANNELS")
+    else:
+        print("Keine ALLOWED_CHANNELS gefunden")
+
 
 
     @bot.check
     async def global_channel_check(ctx):
-        return ctx.channel.id == channel_id
+        if not ALLOWED_CHANNELS:
+            return True
+        return ctx.channel.id in ALLOWED_CHANNELS
 
     if token:
         bot.run(token)
