@@ -16,7 +16,7 @@ class Spam(commands.Cog):
     async def sende_zufalls_nachricht(self, channel):
         try:
             messages = []
-            async for message in channel.history(limit = 5000):
+            async for message in channel.history(limit = 1000):
                 if not message.author.bot and message.content:
                     messages.append(message)
 
