@@ -69,7 +69,7 @@ class Gambling(commands.Cog):
                 if resp.status == 200:
                     data = await resp.json()
 
-                    img_url = data['image']
+                    img_url = data['url']
                     title = data['title']
                     post_link = data['postLink']
 
