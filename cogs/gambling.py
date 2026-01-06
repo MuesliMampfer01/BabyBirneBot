@@ -62,7 +62,7 @@ class Gambling(commands.Cog):
 
     @commands.command(name="frosch",aliases=["frog", "quak"],help="Zeigt einen zufälligen Frosch")
     async def frosch(self,ctx):
-        url = "https://some-random-api.com/animal/amphibian/frog"
+        url = "https://meme-api.com/gimme/frogs"
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
@@ -70,10 +70,12 @@ class Gambling(commands.Cog):
                     data = await resp.json()
 
                     img_url = data['image']
-                    fact = data['fact']
+                    title = data['title']
+                    post_link = data['postLink']
 
-                    embed = discord.Embed(title="Quak! 🐸",description=fact,color=discord.Color.green())
+                    embed = discord.Embed(title=title,url=post_link,color=discord.Color.green())
                     embed.set_image(url=img_url)
+                    embed.set_footer(text="von r/frogs")
 
                     await ctx.send(embed=embed)
 
