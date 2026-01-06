@@ -1,8 +1,8 @@
 import asyncio
-
 import discord
 from discord.ext import commands
 import random
+import aiohttp
 
 
 class Gambling(commands.Cog):
@@ -59,6 +59,26 @@ class Gambling(commands.Cog):
                 await ctx.send(file=pic)
         except FileNotFoundError:
             await ctx.send("Bild nicht gefunden")
+
+    @commands.command(name="frosch",aliases=["frog", "quak"],help="Zeigt einen zufälligen Frosch")
+    async def frosch(self,ctx):
+        url = "https://some-random-api.com/animal/amphibian/frog"
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+
+                    img_url = data['image']
+                    fact = data['fact']
+
+                    embed = discord.Embed(title="Quak! 🐸",description=fact,color=discord.Color.green())
+                    embed.set_image(url=img_url)
+
+                    await ctx.send(embed=embed)
+
+                else:
+                    await ctx.send("API FEHLER")
 
 async def setup(bot):
     await bot.add_cog(Gambling(bot))
