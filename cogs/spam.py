@@ -13,8 +13,27 @@ class Spam(commands.Cog):
     def cog_unload(self):
         self.spam_loop.cancel()
 
+    async def sende_zufalls_nachricht(self, channel):
+        try:
+            messages = []
+            async for message in channel.history(limit = 5000):
+                if not message.author.bot and message.content:
+                    messages.append(message)
+
+            if messages:
+                random_msg = random.choice(messages)
+                await channel.send(random_msg.content)
+            else:
+                print(f"Keine Nachrichten in {channel.name} gefunden")
+
+        except Exception as e:
+            print(f"Fehler beim Senden: {e}")
+
     @commands.command(name="spam", help="Startet/Stoppt zufällige Nachrichten. !spam an / !spam aus")
     async def control_spam(self, ctx, aktion: str):
+        if aktion is None:
+            await ctx.send("an oder aus anhängen")
+
         if aktion.lower() == "an":
             self.is_active = True
             self.target_channel = ctx.channel
@@ -27,23 +46,20 @@ class Spam(commands.Cog):
         else:
             await ctx.send("'!spam an' oder '!spam aus'nutzen.")
 
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author == self.bot.user:
+            return
+
+        if self.bot.user in message.mentions:
+            await self.sende_zufalls_nachricht(message.channel)
+
     @tasks.loop(hours=1)
     async def spam_loop(self):
         if not self.is_active or self.target_channel is None:
             return
 
-        try:
-            messages = []
-            async for message in self.target_channel.history(limit=500):
-                if not message.author.bot and message.content:
-                    messages.append(message)
-
-            if messages:
-                random_msg = random.choice(messages)
-                await self.target_channel.send(random_msg.content)
-
-        except Exception as e:
-            print(f"Fehler im Chaos-Modul: {e}")
+        await self.sende_zufalls_nachricht(self.target_channel)
 
     @spam_loop.before_loop
     async def before_spam_loop(self):
