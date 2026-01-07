@@ -1,5 +1,4 @@
 from asyncio import timeout
-
 import discord
 from discord.ext import commands
 import aiohttp
@@ -8,7 +7,7 @@ import os
 class AI(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.ollama_url = os.getenv("OLAMA_URL", "http://ollama:11434")
+        self.ollama_url = os.getenv("OLLAMA_URL", "http://ollama:11434")
 
     @commands.command(name="chat", aliases=["ask"], help="Frage Ollama3.2 was mit !chat [Frage]")
     async def chat(self, ctx, *, frage: str = None):
@@ -30,10 +29,10 @@ class AI(commands.Cog):
 
                     timeout = aiohttp.ClientTimeout(total=120)
 
-                    async with session.get(full_url, json=payload, timeout=timeout) as resp:
+                    async with session.post(full_url, json=payload, timeout=timeout) as resp:
                         if resp.status == 200:
                             data = await resp.json()
-                            antwort = data.get("resp", "")
+                            antwort = data.get("response", "")
 
                             if len(antwort) > 1900:
                                 antwort = antwort[:1900] + "...\n*(Antwort war zu lang und wurde gekürzt)*"
