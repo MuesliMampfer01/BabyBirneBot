@@ -17,6 +17,7 @@ class AI(commands.Cog):
 
         async with ctx.typing():
             try:
+
                 payload = {
                     "model": "llama3.2",
                     "prompt": frage,
