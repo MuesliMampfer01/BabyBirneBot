@@ -11,3 +11,19 @@ services:
     environment:
       - TOKEN=${TOKEN}
       - CHANNEL=${CHANNEL}
+      - OLLAMA_URL=http://ollama:11434
+    depends_on:
+      - ollama
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - 11434:11434
+
+volumes:
+  ollama_data:
