@@ -35,6 +35,16 @@ async def sync(ctx):
     await ctx.send("Synchronisiere...")
     await bot.tree.sync()
     await ctx.send("Fertig!")
+
+@bot.command()
+async def module(ctx):
+    # Zeigt alle geladenen Cogs an
+    extensions = list(bot.extensions.keys())
+    if not extensions:
+        await ctx.send("❌ Keine Cogs geladen!")
+    else:
+        await ctx.send(f"✅ Geladene Module: {', '.join(extensions)}")
+
 # Starten
 if __name__ == '__main__':
     token = os.getenv("TOKEN")
