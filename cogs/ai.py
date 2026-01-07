@@ -8,6 +8,13 @@ class AI(commands.Cog):
         self.bot = bot
         self.ollama_url = os.getenv("OLLAMA_URL", "http://ollama:11434")
 
+        self.system_prompt = (
+            "Du bist 'BabyBirneBot', ein schlauer und hilfreicher Discord-Bot. "
+            "Du läufst auf einem Raspberry Pi 5, worauf du sehr stolz bist. "
+            "Antworte immer auf Deutsch. Sei freundlich, locker und benutze ab und zu Emojis. "
+            "Fasse dich eher kurz, passend für einen Chat."
+        )
+
     @commands.command(name="chat", aliases=["ask"], help="Frage Ollama3.2 was mit !chat [Frage]")
     async def chat(self, ctx, *, frage: str = None):
         if not frage:
@@ -20,6 +27,7 @@ class AI(commands.Cog):
                 payload = {
                     "model": "llama3.2",
                     "prompt": frage,
+                    "system": self.system_prompt,
                     "stream": False
                 }
 
