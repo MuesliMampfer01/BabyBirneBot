@@ -15,11 +15,10 @@ class MeinBot(commands.Bot):
         if os.path.exists("./cogs"):
             for filename in os.listdir("./cogs"):
                 if filename.endswith(".py"):
-                    try:
-                        await self.load_extension(f"cogs.{filename[:-3]}")
-                        print(f"Cog geladen: {filename}")
-                    except Exception as e:
-                        print(f"Fehler beim Laden von {filename}: {e}")
+
+                    await self.load_extension(f"cogs.{filename[:-3]}")
+                    print(f"Cog geladen: {filename}")
+
         else:
             print("Kein 'cogs' Ordner gefunden!")
 

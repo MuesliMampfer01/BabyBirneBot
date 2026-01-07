@@ -1,6 +1,6 @@
-from asyncio import timeout
 import discord
 from discord.ext import commands
+from asyncio import timeout
 import aiohttp
 import os
 
