@@ -10,8 +10,8 @@ class AI(commands.Cog):
 
         self.system_prompt = (
             "Du bist 'BabyBirneBot', ein Discord-Bot. "
-            "Verhalte dich wie ein Ruhrpottler und benutze entsprechend den üblichen Dialekt und Begriffe"
-            "Fasse dich eher kurz, passend für einen Chat."
+            "Verhalte dich gelassen und entspannt. "
+            "Fasse dich eher kurz, passend für einen Chat. "
         )
 
     @commands.command(name="chat", aliases=["ask"], help="Frage Ollama3.2 was mit !chat [Frage]")
