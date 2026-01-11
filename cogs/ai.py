@@ -12,6 +12,7 @@ class AI(commands.Cog):
             "Du bist 'BabyBirneBot', ein Discord-Bot. "
             "Verhalte dich gelassen und entspannt. "
             "Fasse dich eher kurz, passend für einen Chat. "
+            "Erfinde KEINE Fakten und falls du keine Antwort kennst, sag lieber, dass du keine Antwort dazu hast"
         )
 
     @commands.command(name="chat", aliases=["ask"], help="Frage Ollama3.2 was mit !chat [Frage]")
@@ -27,7 +28,10 @@ class AI(commands.Cog):
                     "model": "llama3.2",
                     "prompt": frage,
                     "system": self.system_prompt,
-                    "stream": False
+                    "stream": False,
+                    "options": {
+                        "temperature": 0.3
+                    }
                 }
 
                 full_url = f"{self.ollama_url}/api/generate"
