@@ -15,6 +15,7 @@ class AI(commands.Cog):
             "Erfinde KEINE Fakten und falls du keine Antwort kennst, sag lieber, dass du keine Antwort dazu hast"
         )
 
+    @commands.cooldown(1, 20)
     @commands.command(name="chat", aliases=["ask"], help="Frage Ollama3.2 was mit !chat [Frage]")
     async def chat(self, ctx, *, frage: str = None):
         if not frage:

@@ -56,12 +56,13 @@ class Pointsystem(commands.Cog):
             res = cursor.fetchone()
             return res[0] if res else 0
 
-
+    @commands.cooldown(1, 5)
     @commands.command(name="points", aliases=["punkte", "p"], help="Zeigt deinen Punktestand an")
     async def balance(self, ctx):
         points = self.get_points(ctx.author.id, ctx.guild.id)
         await ctx.reply(f"Du hast aktuell auf {ctx.guild.name} **{points}** Punkte")
 
+    @commands.cooldown(1, 5)
     @commands.command(name="top", aliases=["leaderboard"], help="Zeigt die Bestenliste dieses Servers an")
     async def leaderboard(self, ctx):
         with sqlite3.connect(self.db_path) as conn:

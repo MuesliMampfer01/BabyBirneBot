@@ -19,7 +19,7 @@ class Gambling(commands.Cog):
             print("Pointsystem konnte nicht geladen werden, keine Punkte vergeben")
             return False
 
-
+    @commands.cooldown(1, 5)
     @commands.command(name="coinflip",aliases=["cf", "münze"], help="mache einen Coinflip")
     async def coinflip(self,ctx, wahl: str):
         if not wahl:
@@ -49,7 +49,7 @@ class Gambling(commands.Cog):
         else:
             await msg.edit(content=f"**{ergebnis.capitalize()}!** Schade, leider ist es die Falsche Zahl")
 
-
+    @commands.cooldown(1, 30)
     @commands.command(name="zahlenraten",aliases=["zr", "raten"],help="Errate die gesuchte Zahl")
     async def zahlenraten(self, ctx):
         gesuchte_zahl = random.randint(1, 100)
@@ -92,7 +92,7 @@ class Gambling(commands.Cog):
                 await ctx.send(f"Zu langsam! Die gesuchte Zahl war {gesuchte_zahl}")
                 break
 
-
+    @commands.cooldown(1, 10)
     @commands.command(name="hirse",help="hirse")
     async def hirse(self,ctx):
         try:
@@ -102,7 +102,7 @@ class Gambling(commands.Cog):
         except FileNotFoundError:
             await ctx.send("Bild nicht gefunden")
 
-
+    @commands.cooldown(1, 10)
     @commands.command(name="frosch",aliases=["frog", "quak"],help="Zeigt einen zufälligen Frosch")
     async def frosch(self,ctx):
         url = "https://meme-api.com/gimme/frogs"

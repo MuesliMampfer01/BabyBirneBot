@@ -29,6 +29,7 @@ class Spam(commands.Cog):
         except Exception as e:
             print(f"Fehler beim Senden: {e}")
 
+    @commands.cooldown(1, 30)
     @commands.command(name="spam", help="Startet/Stoppt zufällige Nachrichten. !spam an / !spam aus")
     async def control_spam(self, ctx, aktion: str):
         if aktion is None:
