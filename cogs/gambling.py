@@ -10,13 +10,13 @@ class Gambling(commands.Cog):
         self.bot = bot
 
     async def give_reward(self, ctx, amount):
-        punktesys = self.bot.get_cog('Punktesystem')
+        punktesys = self.bot.get_cog('Pointsystem')
 
         if punktesys:
             punktesys.add_points(ctx.author.id, ctx.guild.id, amount)
             return True
         else:
-            print("Punktesystem konnte nicht geladen werden, keine Punkte vergeben")
+            print("Pointsystem konnte nicht geladen werden, keine Punkte vergeben")
             return False
 
 
@@ -51,7 +51,7 @@ class Gambling(commands.Cog):
 
 
     @commands.command(name="zahlenraten",aliases=["zr", "raten"],help="Errate die gesuchte Zahl")
-    async def zahlenraten(self, ctx, zahl: int = None):
+    async def zahlenraten(self, ctx):
         gesuchte_zahl = random.randint(1, 100)
         versuche = 5
         await ctx.send("**Willkommen beim Zahlenraten!**\nEs wird eine Zahl zwischen 1 und 100 gesucht.\nDu hast 5 Versuche um die geheime Zahl zu finden!")
