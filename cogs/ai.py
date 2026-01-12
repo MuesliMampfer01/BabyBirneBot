@@ -15,7 +15,7 @@ class AI(commands.Cog):
             "Erfinde KEINE Fakten und falls du keine Antwort kennst, sag lieber, dass du keine Antwort dazu hast"
         )
 
-    @commands.cooldown(1, 20)
+    @commands.cooldown(1, 20, commands.BucketType.guild)
     @commands.command(name="chat", aliases=["ask"], help="Frage Ollama3.2 was mit !chat [Frage]")
     async def chat(self, ctx, *, frage: str = None):
         if not frage:
@@ -39,7 +39,7 @@ class AI(commands.Cog):
 
                 async with aiohttp.ClientSession() as session:
 
-                    timeout = aiohttp.ClientTimeout(total=120)
+                    timeout = aiohttp.ClientTimeout(total=60)
 
                     async with session.post(full_url, json=payload, timeout=timeout) as resp:
                         if resp.status == 200:
