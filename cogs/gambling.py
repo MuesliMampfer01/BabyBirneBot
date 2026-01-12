@@ -21,15 +21,16 @@ class Gambling(commands.Cog):
 
     @commands.cooldown(1, 5, commands.BucketType.guild)
     @commands.command(name="coinflip",aliases=["cf", "münze"], help="mache einen Coinflip")
-    async def coinflip(self,ctx, wahl: str):
-        if not wahl:
+    async def coinflip(self,ctx, wahl: str = None):
+        if wahl is None:
             await ctx.send("Bitte wähle 'Kopf' oder 'Zahl'! Bsp: '!cf kopf'")
             return
 
         seiten = ["kopf", "zahl"]
         wahl = wahl.lower()
+
         if wahl not in seiten:
-            await ctx.send("Es gibt nur 'kopf' oder 'Zahl'")
+            await ctx.send("Es gibt nur 'kopf' oder 'zahl'")
             return
 
         ergebnis = random.choice(seiten)
@@ -39,7 +40,10 @@ class Gambling(commands.Cog):
 
         if wahl == ergebnis:
             punkte = 10
-            hat_punkte_bekommen = await self.give_reward(ctx, punkte)
+            try:
+                hat_punkte_bekommen = await self.give_reward(ctx, punkte)
+            except AttributeError:
+                hat_punkte_bekommen = False
 
             text = f"**{ergebnis.capitalize()}!** Du hast gewonnen!"
             if hat_punkte_bekommen:
@@ -47,7 +51,7 @@ class Gambling(commands.Cog):
 
             await msg.edit(content=text)
         else:
-            await msg.edit(content=f"**{ergebnis.capitalize()}!** Schade, leider ist es die Falsche Zahl")
+            await msg.edit(content=f"**{ergebnis.capitalize()}!** Schade, leider ist das die falsche Seite")
 
     @commands.cooldown(1, 30, commands.BucketType.guild)
     @commands.command(name="zahlenraten",aliases=["zr", "raten"],help="Errate die gesuchte Zahl")
