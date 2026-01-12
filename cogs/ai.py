@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import aiohttp
 import os
+import time
 
 class AI(commands.Cog):
     def __init__(self, bot):
@@ -17,10 +18,19 @@ class AI(commands.Cog):
 
     @commands.cooldown(1, 20, commands.BucketType.guild)
     @commands.command(name="chat", aliases=["ask"], help="Frage Ollama3.2 was mit !chat [Frage]")
-    async def chat(self, ctx, *, frage: str = None):
+    async def chat(self, ctx, *, frage):
+
         if not frage:
             await ctx.send("Bitte gebe eine Frage ein. Bsp: !chat [Frage]")
             return
+
+        MAX_ZEICHEN = 300
+
+        if len(frage) > MAX_ZEICHEN:
+            await ctx.reply(f"Deine Nachricht ist zu lang_ Bitte maximal **{MAX_ZEICHEN} Zeichen** (Du hast {len(frage)} genutzt). ")
+            return
+
+        start_zeit = time.time()
 
         async with ctx.typing():
             try:
@@ -46,10 +56,12 @@ class AI(commands.Cog):
                             data = await resp.json()
                             antwort = data.get("response", "")
 
+                            dauer = round(time.time() - start_zeit, 1)
+
                             if len(antwort) > 1900:
                                 antwort = antwort[:1900] + "...\n*(Antwort war zu lang und wurde gekürzt)*"
 
-                            await ctx.reply(antwort)
+                            await ctx.reply(f"{antwort}\n\n *Generiert in {dauer}s*")
 
                         else:
                             await ctx.send(f"Ollama hat Schwierigkeiten. Status Code: {resp.status}")
