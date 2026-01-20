@@ -22,7 +22,7 @@ class Gambling(commands.Cog):
         aces = 0
 
         for card, color in hand:
-            if card in ["J, Q", "K"]:
+            if card in ["J", "Q", "K"]:
                 value += 10
             elif card == "A":
                 aces += 1
