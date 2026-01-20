@@ -9,6 +9,38 @@ class Gambling(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    #---------Hilfsmethoden für Blackjack----------
+    def create_deck(self):
+        colors = ["♠️", "♥️", "♦️", "♣️"]
+        values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
+        deck = [(values, colors) for colors in colors for values in values]
+        random.shuffle(deck)
+        return deck
+
+    def calc_hand(self, hand):
+        value = 0
+        aces = 0
+
+        for card, color in hand:
+            if card in ["J, Q", "K"]:
+                value += 10
+            elif card == "A":
+                aces += 1
+                value += 11
+            else:
+                value += int(card)
+
+        #Asse behandeln (wenn über 21, Ass = 1
+        while value > 21 and aces > 0:
+            value -= 10
+            aces -= 1
+
+        return value
+
+    def format_hand(self, hand):
+        return ", ".join([f"{color}{card}" for card, color in hand])
+
+    #--------Punktevergabe---------
     async def give_reward(self, ctx, amount):
         punktesys = self.bot.get_cog('Pointsystem')
 
@@ -19,6 +51,7 @@ class Gambling(commands.Cog):
             print("Pointsystem konnte nicht geladen werden, keine Punkte vergeben")
             return False
 
+    #---------Coinflip---------
     @commands.cooldown(1, 5, commands.BucketType.guild)
     @commands.command(name="coinflip",aliases=["cf", "münze"], help="mache einen Coinflip")
     async def coinflip(self,ctx, wahl: str = None):
@@ -53,6 +86,7 @@ class Gambling(commands.Cog):
         else:
             await msg.edit(content=f"**{ergebnis.capitalize()}!** Schade, leider ist das die falsche Seite")
 
+    #---------Zahlenraten---------
     @commands.cooldown(1, 30, commands.BucketType.guild)
     @commands.command(name="zahlenraten",aliases=["zr", "raten"],help="Errate die gesuchte Zahl")
     async def zahlenraten(self, ctx):
@@ -96,6 +130,96 @@ class Gambling(commands.Cog):
                 await ctx.send(f"Zu langsam! Die gesuchte Zahl war {gesuchte_zahl}")
                 break
 
+    #--------BlackJack--------
+    @commands.cooldown(1, 30, commands.BucketType.guild)
+    @commands.command(name="blackjack", aliases=["bj"], help="Spiele eine Runde Blackjack!")
+    async def blackjack(self, ctx, bet: int):
+        points_cog = self.bot.get_cog('Pointsystem')
+
+        if not points_cog:
+            await ctx.send("Punktesystem nicht geladen")
+            return
+
+        if bet <= 0:
+            await ctx.reply("Bitte setze mindestens 1 Punkt")
+            return
+
+        user_id = ctx.author.id
+        serv_id = ctx.guild.id
+        account = points_cog.get_points(user_id, serv_id)
+
+        if account < bet:
+            await ctx.reply(f"Du hast nicht genug Punkte! Dein Kontostand: **{account}**")
+            return
+
+        deck = self.create_deck()
+        player_hand = [deck.pop(), deck.pop()]
+        dealer_hand = [deck.pop(), deck.pop()]
+
+        playing = True
+
+        while playing:
+            player_value = self.calc_hand(player_hand)
+
+            embed = discord.Embed(title="🃏 Blackjack", color=discord.Color.blue())
+            embed.add_field(name="Deine Hand", value=f"{self.format_hand(player_hand)} (**{player_value}**)", inline=False)
+            embed.add_field(name="Dealer Hand", value=f"{dealer_hand[0][1]}{dealer_hand[0][0]}, 🎴 ?", inline=False)
+            embed.set_footer(text="Schreibe 'hit' (ziehen) oder 'stand' (bleiben)")
+
+            msg = await ctx.send(embed=embed)
+
+            if player_value > 21:
+                await ctx.send(f"**Bust!** Du hast {player_value}. Du verlierst **{bet}** Punkte.")
+                points_cog.add_points(user_id, serv_id, -bet)
+                return
+
+            def check(m):
+                return m.author == ctx.author and m.channel == ctx.channel and m.content.lower() in ["hit", "stand", "h", "s"]
+
+            try:
+                antwort = await self.bot.wait_for("message", check=check, timeout=30.0)
+            except asyncio.TimeoutError:
+                await ctx.send(f"Zeit abgelaufen! Du bleibst stehen")
+                break
+
+            if antwort.content.lower() in ["hit", "h"]:
+                player_hand.append(deck.pop())
+            else:
+                break
+
+            player_value = self.calc_hand(player_hand)
+            dealer_value = self.calc_hand(dealer_hand)
+
+            while dealer_value < 17:
+                dealer_hand.append(deck.pop())
+                dealer_value = self.calc_hand(dealer_hand)
+
+            embed_end = discord.Embed(title="🃏 Blackjack - Ergebnis", color=discord.Color.gold())
+            embed_end.add_field(name="Deine Hand", value=f"{self.format_hand(player_hand)} (**{player_value}**)", inline=True)
+            embed_end.add_field(name="Dealer Hand", value=f"{self.format_hand(dealer_hand)} (**{dealer_value}**)", inline=True)
+
+            if dealer_value > 21:
+                embed_end.description = f"🎉 Dealer Bust! Du gewinnst **{bet}** Punkte!"
+                embed_end.color = discord.Color.green()
+                points_cog.add_points(user_id, serv_id, bet)
+
+            elif dealer_value > player_value:
+                embed_end.description = f"❌ Dealer gewinnt. Du verlierst **{bet}** Punkte!"
+                embed_end.color = discord.Color.red()
+                points_cog.add_points(user_id, serv_id, -bet)
+
+            elif dealer_value < player_value:
+                embed_end.description = f"🎉 Glückwunsch! Du gewinnst **{bet}** Punkte!"
+                embed_end.color = discord.Color.green()
+                points_cog.add_points(user_id, serv_id, bet)
+
+            else:
+                embed_end.description = "🤝 Unentschieden (Push). Du behältst deinen Einsatz."
+                embed_end.color = discord.Color.light_gray()
+
+            await ctx.send(embed=embed_end)
+
+    #--------Hirse--------
     @commands.cooldown(1, 10, commands.BucketType.guild)
     @commands.command(name="hirse",help="hirse")
     async def hirse(self,ctx):
@@ -106,6 +230,7 @@ class Gambling(commands.Cog):
         except FileNotFoundError:
             await ctx.send("Bild nicht gefunden")
 
+    #---------Frosch--------
     @commands.cooldown(1, 10, commands.BucketType.guild)
     @commands.command(name="frosch",aliases=["frog", "quak"],help="Zeigt einen zufälligen Frosch")
     async def frosch(self,ctx):
