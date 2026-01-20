@@ -11,9 +11,9 @@ class Gambling(commands.Cog):
 
     #---------Hilfsmethoden für Blackjack----------
     def create_deck(self):
-        colors = ["♠️", "♥️", "♦️", "♣️"]
-        values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
-        deck = [(values, colors) for colors in colors for values in values]
+        colors_list = ["♠️", "♥️", "♦️", "♣️"]
+        values_list = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
+        deck = [(values, colors) for colors in colors_list for values in values_list]
         random.shuffle(deck)
         return deck
 
@@ -187,37 +187,37 @@ class Gambling(commands.Cog):
             else:
                 break
 
-            player_value = self.calc_hand(player_hand)
+        player_value = self.calc_hand(player_hand)
+        dealer_value = self.calc_hand(dealer_hand)
+
+        while dealer_value < 17:
+            dealer_hand.append(deck.pop())
             dealer_value = self.calc_hand(dealer_hand)
 
-            while dealer_value < 17:
-                dealer_hand.append(deck.pop())
-                dealer_value = self.calc_hand(dealer_hand)
+        embed_end = discord.Embed(title="🃏 Blackjack - Ergebnis", color=discord.Color.gold())
+        embed_end.add_field(name="Deine Hand", value=f"{self.format_hand(player_hand)} (**{player_value}**)", inline=True)
+        embed_end.add_field(name="Dealer Hand", value=f"{self.format_hand(dealer_hand)} (**{dealer_value}**)", inline=True)
 
-            embed_end = discord.Embed(title="🃏 Blackjack - Ergebnis", color=discord.Color.gold())
-            embed_end.add_field(name="Deine Hand", value=f"{self.format_hand(player_hand)} (**{player_value}**)", inline=True)
-            embed_end.add_field(name="Dealer Hand", value=f"{self.format_hand(dealer_hand)} (**{dealer_value}**)", inline=True)
+        if dealer_value > 21:
+            embed_end.description = f"🎉 Dealer Bust! Du gewinnst **{bet}** Punkte!"
+            embed_end.color = discord.Color.green()
+            points_cog.add_points(user_id, serv_id, bet)
 
-            if dealer_value > 21:
-                embed_end.description = f"🎉 Dealer Bust! Du gewinnst **{bet}** Punkte!"
-                embed_end.color = discord.Color.green()
-                points_cog.add_points(user_id, serv_id, bet)
+        elif dealer_value > player_value:
+            embed_end.description = f"❌ Dealer gewinnt. Du verlierst **{bet}** Punkte!"
+            embed_end.color = discord.Color.red()
+            points_cog.add_points(user_id, serv_id, -bet)
 
-            elif dealer_value > player_value:
-                embed_end.description = f"❌ Dealer gewinnt. Du verlierst **{bet}** Punkte!"
-                embed_end.color = discord.Color.red()
-                points_cog.add_points(user_id, serv_id, -bet)
+        elif dealer_value < player_value:
+            embed_end.description = f"🎉 Glückwunsch! Du gewinnst **{bet}** Punkte!"
+            embed_end.color = discord.Color.green()
+            points_cog.add_points(user_id, serv_id, bet)
 
-            elif dealer_value < player_value:
-                embed_end.description = f"🎉 Glückwunsch! Du gewinnst **{bet}** Punkte!"
-                embed_end.color = discord.Color.green()
-                points_cog.add_points(user_id, serv_id, bet)
+        else:
+            embed_end.description = "🤝 Unentschieden (Push). Du behältst deinen Einsatz."
+            embed_end.color = discord.Color.light_gray()
 
-            else:
-                embed_end.description = "🤝 Unentschieden (Push). Du behältst deinen Einsatz."
-                embed_end.color = discord.Color.light_gray()
-
-            await ctx.send(embed=embed_end)
+        await ctx.send(embed=embed_end)
 
     #--------Hirse--------
     @commands.cooldown(1, 10, commands.BucketType.guild)
