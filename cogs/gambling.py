@@ -161,13 +161,6 @@ class Gambling(commands.Cog):
         while playing:
             player_value = self.calc_hand(player_hand)
 
-            embed = discord.Embed(title="🃏 Blackjack", color=discord.Color.blue())
-            embed.add_field(name="Deine Hand", value=f"{self.format_hand(player_hand)} (**{player_value}**)", inline=False)
-            embed.add_field(name="Dealer Hand", value=f"{dealer_hand[0][1]}{dealer_hand[0][0]}, 🎴 ?", inline=False)
-            embed.set_footer(text="Schreibe 'hit' (ziehen) oder 'stand' (bleiben)")
-
-            msg = await ctx.send(embed=embed)
-
             if player_value > 21:
                 embed_bust = discord.Embed(title="💥 Bust! - Überkauft", color=discord.Color.red())
                 embed_bust.add_field(name="Deine End-Hand",value=f"{self.format_hand(player_hand)} (**{player_value}**)", inline=False)
@@ -177,6 +170,13 @@ class Gambling(commands.Cog):
 
                 points_cog.add_points(user_id, serv_id, -bet)
                 return
+
+            embed = discord.Embed(title="🃏 Blackjack", color=discord.Color.blue())
+            embed.add_field(name="Deine Hand", value=f"{self.format_hand(player_hand)} (**{player_value}**)", inline=False)
+            embed.add_field(name="Dealer Hand", value=f"{dealer_hand[0][1]}{dealer_hand[0][0]}, 🎴 ?", inline=False)
+            embed.set_footer(text="Schreibe 'hit' (ziehen) oder 'stand' (bleiben)")
+
+            await ctx.send(embed=embed)
 
             def check(m):
                 return m.author == ctx.author and m.channel == ctx.channel and m.content.lower() in ["hit", "stand", "h", "s"]
