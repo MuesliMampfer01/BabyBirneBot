@@ -169,7 +169,12 @@ class Gambling(commands.Cog):
             msg = await ctx.send(embed=embed)
 
             if player_value > 21:
-                await ctx.send(f"**Bust!** Du hast {player_value}. Du verlierst **{bet}** Punkte.")
+                embed_bust = discord.Embed(title="💥 Bust! - Überkauft", color=discord.Color.red())
+                embed_bust.add_field(name="Deine End-Hand",value=f"{self.format_hand(player_hand)} (**{player_value}**)", inline=False)
+                embed_bust.description = f"Das war zu viel! Du verlierst deinen Einsatz von **{bet}** Punkten."
+
+                await ctx.send(embed=embed_bust)
+
                 points_cog.add_points(user_id, serv_id, -bet)
                 return
 
