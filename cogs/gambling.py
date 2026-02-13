@@ -3,11 +3,13 @@ import discord
 from discord.ext import commands
 import random
 import aiohttp
+import io
 
 
 class Gambling(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.api_url = "http://frogAPI:4444/randomfrog"
 
     #---------Hilfsmethoden für Blackjack----------
     def create_deck(self):
@@ -239,25 +241,21 @@ class Gambling(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.guild)
     @commands.command(name="frosch",aliases=["frog", "quak"],help="Zeigt einen zufälligen Frosch")
     async def frosch(self,ctx):
-        url = "https://meme-api.com/gimme/frogs"
+        async with ctx.typing():
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(self.api_url) as resp:
+                        if resp.status == 200:
+                            data = await resp.read()
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as resp:
-                if resp.status == 200:
-                    data = await resp.json()
+                            file_obj = io.BytesIO(data)
+                            file = discord.File(file_obj, filename="frosch.png")
 
-                    img_url = data['url']
-                    title = data['title']
-                    post_link = data['postLink']
-
-                    embed = discord.Embed(title=title,url=post_link,color=discord.Color.green())
-                    embed.set_image(url=img_url)
-                    embed.set_footer(text="von r/frogs")
-
-                    await ctx.send(embed=embed)
-
-                else:
-                    await ctx.send("API FEHLER")
+                            await ctx.reply("Quak! 🐸", file=file)
+                        else:
+                            await ctx.send("API FEHLER")
+            except Exception as e:
+                await ctx.reply(f"Fehler bei der Frosch-Suche: {e}")
 
 async def setup(bot):
     await bot.add_cog(Gambling(bot))
