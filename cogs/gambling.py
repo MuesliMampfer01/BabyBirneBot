@@ -249,7 +249,7 @@ class Gambling(commands.Cog):
                             data = await resp.read()
 
                             file_obj = io.BytesIO(data)
-                            file = discord.File(file_obj, filename="frosch.png")
+                            file = discord.File(file_obj, filename="frosch.jpg")
 
                             await ctx.reply("Quak! 🐸", file=file)
                         else:
