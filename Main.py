@@ -10,8 +10,9 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
-class MeinBot(commands.Bot):
+class Bot(commands.Bot):
     async def setup_hook(self):
+        # 1. Cogs laden (dein Code)
         if os.path.exists("./cogs"):
             for filename in os.listdir("./cogs"):
                 if filename.endswith(".py"):
@@ -23,7 +24,14 @@ class MeinBot(commands.Bot):
         else:
             print("Kein 'cogs' Ordner gefunden!")
 
-bot = MeinBot(command_prefix="!", intents=intents)
+        #slash-commands hinzufügen
+        try:
+            synced = await self.tree.sync()
+            print(f"{len(synced)} Slash-Commands erfolgreich synchronisiert.")
+        except Exception as e:
+            print(f"Fehler beim Syncen der Commands: {e}")
+
+bot = Bot(command_prefix="!", intents=intents)
 
 
 @bot.event
