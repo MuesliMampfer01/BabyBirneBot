@@ -48,7 +48,6 @@ class AI(commands.Cog):
 
         start_zeit = time.time()
 
-        # Bot "denken" lassen, da lokale KI etwas dauert
         await interaction.response.defer()
 
         try:
