@@ -19,6 +19,7 @@
 | --- | --- |
 | `/chat [Frage]` | Stellt eine Frage an die lokale KI (mit Gedächtnis). |
 | `/resetbot` | Löscht den aktuellen Chat-Verlauf/Gedächtnis des Bots. |
+| `/qrcode [URL]` | Erstellt aus einem https://-Link einen QR-Code. |
 | *fehlende Dokumentation, weitere Befehle werden künftig eingetragen* |  |
 
 ---
