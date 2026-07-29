@@ -62,6 +62,9 @@ class QRCodeGen(commands.Cog):
                 await interaction.followup.send(f"Es konnte kein QR Code generiert werden! Überprüfe die Richtigkeit deines Links und bitte verwende ausschließlich **https://**-Links")
                 print(f"QR-Code Fehler: {e}")
 
+        else:
+            await interaction.response.send_message("**Ungültige Eingabe!** Bitte gib einen gültigen Link ein, der mit **https://** beginnt.")
+
 #Setup
 async def setup(bot):
     await bot.add_cog(QRCodeGen(bot))
