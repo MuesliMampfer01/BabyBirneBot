@@ -1,6 +1,5 @@
 import discord
 import os
-import asyncio
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -12,7 +11,6 @@ intents.members = True
 
 class Bot(commands.Bot):
     async def setup_hook(self):
-        # 1. Cogs laden (dein Code)
         if os.path.exists("./cogs"):
             for filename in os.listdir("./cogs"):
                 if filename.endswith(".py"):
@@ -24,7 +22,6 @@ class Bot(commands.Bot):
         else:
             print("Kein 'cogs' Ordner gefunden!")
 
-        #slash-commands hinzufügen
         try:
             synced = await self.tree.sync()
             print(f"{len(synced)} Slash-Commands erfolgreich synchronisiert.")

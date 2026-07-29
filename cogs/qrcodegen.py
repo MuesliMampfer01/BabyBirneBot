@@ -1,9 +1,8 @@
-import aiohttp
+
 import discord
 from discord import app_commands
 from discord.ext import commands
 import qrcode
-from ipykernel import embed
 
 
 class QRCodeGen(commands.Cog):
@@ -50,3 +49,5 @@ class QRCodeGen(commands.Cog):
                 await interaction.followup.send(f"Es konnte kein QR Code generiert werden! Überprüfe die Richtigkeit deines Links und bitte verwende ausschließlich **https://**-Links")
 
 
+async def setup(bot):
+    await bot.add_cog(QRCodeGen(bot))
