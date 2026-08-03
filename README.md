@@ -20,6 +20,7 @@
 | `/chat [Frage]` | Stellt eine Frage an die lokale KI (mit Gedächtnis). |
 | `/resetbot` | Löscht den aktuellen Chat-Verlauf/Gedächtnis des Bots. |
 | `/qrcode [URL]` | Erstellt aus einem https://-Link einen QR-Code. |
+| `/weather [Ort]` | Gibt das aktuelle Wetter an dem eingegebenen Ort wider |
 | *fehlende Dokumentation, weitere Befehle werden künftig eingetragen* |  |
 
 ---
