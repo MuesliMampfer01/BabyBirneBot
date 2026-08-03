@@ -32,22 +32,24 @@ class Weather(commands.Cog):
     # * = Name geht auch mit Leerzeichen
     async def weather(self, interaction: discord.Interaction, *, city: str):
 
+        await interaction.response.defer()
+
         #Daten von FrogAPI abrufen
         try:
             async with aiohttp.ClientSession() as session:
                 #Stadt wird als Parameter an die FrogAPI übergeben
                 async with session.get(self.api_url, params={"city": city}) as resp:
                     if resp.status == 404:
-                        await interaction.response.send_message(f"Konnte den Ort **{city}** auf der Landkarte nicht finden...")
+                        await interaction.followup.send(f"Konnte den Ort **{city}** auf der Landkarte nicht finden...")
                         return
                     elif resp.status != 200:
-                        await interaction.response.send_message("FrogAPI gerade nicht erreichbar")
+                        await interaction.followup.send("FrogAPI gerade nicht erreichbar")
                         return
 
                     data = await resp.json()
 
         except Exception as e:
-            await interaction.response.send_message(f"Verbindungsfehler: {e}")
+            await interaction.followup.send(f"Verbindungsfehler: {e}")
             return
 
         #Wetter in Emojis übersetzen
@@ -58,7 +60,7 @@ class Weather(commands.Cog):
         if temperature <= 15:
             embed_color = discord.Color.blue()
 
-        elif 15 > temperature  > 25:
+        elif 15 < temperature <= 25:
             embed_color = discord.Color.orange()
 
         else:
