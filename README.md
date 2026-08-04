@@ -17,10 +17,11 @@
 
 | Befehl | Beschreibung |
 | --- | --- |
-| `/chat [Frage]` | Stellt eine Frage an die lokale KI (mit Gedächtnis). |
-| `/resetbot` | Löscht den aktuellen Chat-Verlauf/Gedächtnis des Bots. |
-| `/qrcode [URL]` | Erstellt aus einem https://-Link einen QR-Code. |
+| `/chat [Frage]` | Stellt eine Frage an die lokale KI (mit Gedächtnis) |
+| `/resetbot` | Löscht den aktuellen Chat-Verlauf/Gedächtnis des Bots |
+| `/qrcode [URL]` | Erstellt aus einem https://-Link einen QR-Code |
 | `/weather [Ort]` | Gibt das aktuelle Wetter an dem eingegebenen Ort wider |
+| `/coinflip [Kopf, Zahl]` | Lässt dich Coinflip spielen |
 | *fehlende Dokumentation, weitere Befehle werden künftig eingetragen* |  |
 
 ---
