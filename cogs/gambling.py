@@ -1,6 +1,5 @@
 import asyncio
 import discord
-from click import Choice
 from discord.ext import commands
 from discord import app_commands
 from discord.app_commands import Choice
