@@ -45,11 +45,11 @@ class Gambling(commands.Cog):
         return ", ".join([f"{color}{card}" for card, color in hand])
 
     #--------Punktevergabe---------
-    async def give_reward(self, ctx, amount):
-        punktesys = self.bot.get_cog('Pointsystem')
+    async def give_reward(self, interaction: discord.Interaction, amount: int):
+        pointsys = self.bot.get_cog('Pointsystem')
 
-        if punktesys:
-            punktesys.add_points(ctx.author.id, ctx.guild.id, amount)
+        if pointsys:
+            pointsys.add_points(interaction.user.id, interaction.guild_id, amount)
             return True
         else:
             print("Pointsystem konnte nicht geladen werden, keine Punkte vergeben")
