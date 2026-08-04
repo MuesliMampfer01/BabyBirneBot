@@ -1,6 +1,9 @@
 import asyncio
 import discord
+from click import Choice
 from discord.ext import commands
+from discord import app_commands
+from discord.app_commands import Choice
 import random
 import aiohttp
 import io
@@ -54,39 +57,39 @@ class Gambling(commands.Cog):
             return False
 
     #---------Coinflip---------
-    @commands.cooldown(1, 5, commands.BucketType.guild)
-    @commands.command(name="coinflip",aliases=["cf", "münze"], help="mache einen Coinflip")
-    async def coinflip(self,ctx, wahl: str = None):
-        if wahl is None:
-            await ctx.send("Bitte wähle 'Kopf' oder 'Zahl'! Bsp: '!cf kopf'")
-            return
+    @app_commands.command(name="coinflip", description="Spiele Coinflip!")
+    @app_commands.describe(choice="Gebe 'Kopf' oder 'Zahl' ein")
+    @app_commands.choices(choice=[
+        Choice(name="Kopf", value="kopf"),
+        Choice(name="Zahl", value="zahl")
+    ])
+    @app_commands.checks.cooldown(1, 5, key=lambda i: i.guild_id or i.user_id)
+    async def coinflip(self, interaction: discord.Interaction, choice: Choice[str]):
 
-        seiten = ["kopf", "zahl"]
-        wahl = wahl.lower()
+        await interaction.response.defer()
 
-        if wahl not in seiten:
-            await ctx.send("Es gibt nur 'kopf' oder 'zahl'")
-            return
+        user_choice = choice.value
+        sides = ["kopf", "zahl"]
 
-        ergebnis = random.choice(seiten)
+        result = random.choice(sides)
 
-        msg = await ctx.send("Die Münze wurde geworfen...")
+        msg = await interaction.followup.send("Die Münze wurde geworfen...")
         await asyncio.sleep(1)
 
-        if wahl == ergebnis:
-            punkte = 10
+        if user_choice == result:
+            points = 10
             try:
-                hat_punkte_bekommen = await self.give_reward(ctx, punkte)
+                got_points = await self.give_reward(interaction, points)
             except AttributeError:
-                hat_punkte_bekommen = False
+                got_points = False
 
-            text = f"**{ergebnis.capitalize()}!** Du hast gewonnen!"
-            if hat_punkte_bekommen:
-                text += f"\n **+{punkte} Punkte** wurden dir gutgeschrieben"
+            text = f"**{result.capitalize()}!** Du hast gewonnen!"
+            if got_points:
+                text += f"\n **+{points} Punkte** wurden dir gutgeschrieben"
 
             await msg.edit(content=text)
         else:
-            await msg.edit(content=f"**{ergebnis.capitalize()}!** Schade, leider ist das die falsche Seite")
+            await msg.edit(content=f"**{result.capitalize()}!** Schade, leider ist das die falsche Seite")
 
     #---------Zahlenraten---------
     @commands.cooldown(1, 30, commands.BucketType.guild)
