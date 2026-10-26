@@ -59,7 +59,7 @@ class AI(commands.Cog):
                 "model": "llama3.2",
                 "messages": messages_payload,
                 "stream": True,
-                "keep_alive": "2min",
+                "keep_alive": "2m",
                 "options": {
                     "temperature": 0.5,
                     "num_ctx": 1024,
