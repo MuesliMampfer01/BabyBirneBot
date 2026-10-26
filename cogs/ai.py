@@ -10,6 +10,7 @@ class AI(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.ollama_url = os.getenv("OLLAMA_URL", "http://ollama:11434")
+        self.model = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
         self.history = {}
         self.MAX_HISTORY = 6
         self.system_prompt = (
@@ -56,7 +57,7 @@ class AI(commands.Cog):
             messages_payload = [{"role": "system", "content": self.system_prompt}] + self.history[context_id]
 
             payload = {
-                "model": "llama3.2",
+                "model": self.model,
                 "messages": messages_payload,
                 "stream": True,
                 "keep_alive": "2m",
