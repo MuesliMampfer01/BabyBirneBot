@@ -74,8 +74,10 @@ class AI(commands.Cog):
 
                 async with session.post(full_url, json=payload, timeout=timeout) as resp:
                     if resp.status != 200:
-                        await message.edit(content=f"Es gibt Schwierigkeiten. Status Code: {resp.status}")
-                        self.history[context_id].pop()
+                        error_text = await resp.text()
+                        await message.edit(content=f"❌ **Ollama Fehler (Status {resp.status}):**\n```{error_text}```")
+                        if context_id in self.history and self.history[context_id]:
+                            self.history[context_id].pop()
                         return
 
                     full_resp = ""
