@@ -93,5 +93,3 @@ class Pointsystem(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Pointsystem(bot))
-
-
