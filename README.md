@@ -1,12 +1,12 @@
 # 🤖 BabyBirneBot
 
-> Ein kleiner Discord-Bot mit integrierter KI-Unterstützung (Ollama), modularem Cog-System und integrierten Spielen.
+> Ein kleiner Discord-Bot mit integrierter KI-Unterstützung, modularem Cog-System und integrierten Spielen.
 
 ---
 
 ## ✨ Features
 
-* **Intelligenter KI-Chat:** Nutzt eine kleine lokale LLM (`llama3.2`) für natürliche Unterhaltungen und Kontext-Gedächtnis.
+* **Intelligenter KI-Chat:** Nutzt eine kleine lokale LLM für kleine Unterhaltungen und besitzt dazu ein minimales Kontext-Gedächtnis.
 * **Modulare Architektur:** Dank des `discord.py`-Cog-Systems können neue Funktionen einfach hinzugefügt oder entfernt werden.
 * **Moderne Slash-Commands:** Voll integrierte Interaktionen (`/`) für eine saubere Benutzererfahrung in Discord.
 * **Sicher & Lokal:** Läuft komplett selbstgehostet auf eigener Hardware (Raspberry Pi via Docker & Portainer).
@@ -17,7 +17,7 @@
 
 | Befehl | Beschreibung |
 | --- | --- |
-| `/chat [Frage]` | Stellt eine Frage an die lokale KI (mit Gedächtnis) |
+| `/chat [Frage]` | Stellt eine Frage an die lokale KI |
 | `/resetbot` | Löscht den aktuellen Chat-Verlauf/Gedächtnis des Bots |
 | `/qrcode [URL]` | Erstellt aus einem https://-Link einen QR-Code |
 | `/weather [Ort]` | Gibt das aktuelle Wetter an dem eingegebenen Ort wider |
@@ -30,7 +30,7 @@
 
 * **Sprache:** Python 3.10+
 * **Bibliothek:** `discord.py`
-* **KI-Backend:** Ollama (Llama 3.2)
+* **KI-Backend:** Ollama 
 * **Hosting:** Docker & Portainer auf Raspberry Pi Server 
 
 ---
@@ -56,7 +56,7 @@ BabyBirneBot/
 ### 1. Repository klonen
 
 ```bash
-git clone [https://github.com/MuesliMampfer01/BabyBirneBot.git](https://github.com/MuesliMampfer01/BabyBirneBot.git)
+git clone https://github.com/MuesliMampfer01/BabyBirneBot.git
 cd BabyBirneBot
 
 ```
