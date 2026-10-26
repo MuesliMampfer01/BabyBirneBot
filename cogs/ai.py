@@ -114,7 +114,7 @@ class AI(commands.Cog):
                     if len(full_resp) > 1900:
                         full_resp = full_resp[:1900] + "...\n*(Antwort war zu lang und wurde gekürzt)*"
 
-                    await message.edit(content=f"{full_resp}\n\n⚡ *Generiert in {duration}s")
+                    await message.edit(content=f"{full_resp}\n\n*Generiert in {duration}s*")
 
         except Exception as e:
             await interaction.followup.send(f"Verbindung verloren. Fehler: {e}")
