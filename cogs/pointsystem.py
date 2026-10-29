@@ -3,6 +3,7 @@ from discord.ext import commands
 import sqlite3
 import os
 import math
+import time
 
 class Pointsystem(commands.Cog):
     def __init__(self, bot):
@@ -64,6 +65,10 @@ class Pointsystem(commands.Cog):
             return 1
         return int(math.sqrt(xp/100)) + 1
 
+    def xp_for_level(self, level: int) -> int:
+        """Gibt die benötigten Gesamt-XP für ein bestimmtes Level zurück."""
+        return ((level - 1) ** 2) * 100
+
     def calc_level_reward(self, level):
         return 100 + (level * 50)
 
@@ -116,11 +121,50 @@ class Pointsystem(commands.Cog):
             return leveled_up, old_level, new_level, bonus
         
 
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if message.author.bot or not message.guild: 
+            return 
+
+        user_id = message.author.id
+        serv_id = message.guild.id
+        now = time.time()
+
+        last_xp_time = self.xp_cooldown.get((user_id, serv_id), 0)
+        if now -last_xp_time < 60:
+            return
+
+        self.xp_cooldowns[(user_id, serv_id)] = now
+
+        xp_gained = 20
+        leveled_up, old_level, new_level, bonus = self.add_xp(user_id, serv_id, xp_gained)
+
+        if leveled_up:
+            embed = discord.Embed(
+                title="🎉 LEVEL UP!",
+                description=f"{message.author.mention} ist von **Level {old_level}** auf **Level {new_level}** aufgestiegen!",
+                color=discord.Color.gold()
+            )
+            embed.add_field(name="💰 Belohnungs-Bonus", value=f"**+{bonus} Punkte** erhalten!")
+            await message.channel.send(embed=embed)
+
+
+        
     @commands.cooldown(1, 5, commands.BucketType.guild)
-    @commands.command(name="points", aliases=["punkte", "p"], help="Zeigt deinen Punktestand an")
+    @commands.command(name="points", aliases=["punkte", "p", "level", "rank"], help="Zeigt dein Level und deine Punke an")
     async def balance(self, ctx):
-        points = self.get_points(ctx.author.id, ctx.guild.id)
-        await ctx.reply(f"Du hast aktuell auf {ctx.guild.name} **{points}** Punkte")
+        xp, points = self.get_points(ctx.author.id, ctx.guild.id)
+        level = self.calc_level(xp)
+        next_level_xp = self.xp_for_level(level + 1)
+        xp_needed = next_level_xp - xp
+
+        embed = discord.Embed(title=f"📊 Profil von {ctx.author.display_name}", color=discord.Color.blue())
+        embed.add_field(name="💰 Punkte", value=f"**{points:,}**", inline=True)
+        embed.add_field(name="⭐ Level", value=f"**{level}**", inline=True)
+        embed.add_field(name="✨ XP Gesamt", value=f"**{xp:,}** XP", inline=True)
+        embed.add_field(name="🎯 Nächstes Level", value=f"Noch **{xp_needed:,}** XP", inline=False)
+        
+        await ctx.reply(embed=embed)
 
     @commands.cooldown(1, 5, commands.BucketType.guild)
     @commands.command(name="top", aliases=["leaderboard"], help="Zeigt die Bestenliste dieses Servers an")
@@ -128,7 +172,7 @@ class Pointsystem(commands.Cog):
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT user_id, points FROM serv_points
+                SELECT user_id, xp, points FROM serv_points
                 WHERE serv_id = ?
                 ORDER BY points DESC LIMIT 10
                 """, (ctx.guild.id,))
@@ -141,12 +185,13 @@ class Pointsystem(commands.Cog):
 
         embed  = discord.Embed(title=f"🏆 Top 10 auf {ctx.guild.name} 🏆", color=discord.Color.gold())
         text = ""
-        for i, (user_id, points) in enumerate(top_users, start=1):
+        for i, (user_id, points, xp) in enumerate(top_users, start=1):
             member = ctx.guild.get_member(user_id)
             name = member.display_name if member else "Unbekannter User"
+            level = self.calc_level(xp)
 
             medaille = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else f"#{i}"
-            text += f"{medaille} {name}: {points} Punkte\n"
+            text += f"{medaille} **{name}**: {points:,} Punkte *(Level {level}*\n"
 
         embed.description = text
         await ctx.send(embed=embed)
