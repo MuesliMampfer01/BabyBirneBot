@@ -25,6 +25,14 @@ class Pointsystem(commands.Cog):
                     points INTEGER DEFAULT 0,
                     PRIMARY KEY (user_id, serv_id))
                     """)
+            
+
+            try:
+                    cursor.execute("ALTER TABLE serv_points ADD COLUMN xp INTEGER DEFAULT 0")
+            except sqlite3.OperationalError:
+            
+                pass
+
             conn.commit()
 
     # --- HILFSMETHODEN ---
