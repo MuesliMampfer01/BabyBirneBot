@@ -1,4 +1,4 @@
-# 🤖 BabyBirneBot
+# BabyBirneBot
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![discord.py](https://img.shields.io/badge/discord.py-2.x-5865F2.svg?logo=discord&logoColor=white)](https://discordpy.readthedocs.io/)
@@ -9,39 +9,39 @@
 
 ---
 
-## ✨ Features
+## Features
 
-- 🤖 **Lokale KI-Integration:** Nutzt Ollama (z. B. Qwen 2.5) für flüssigen Chat mit Kontext-Gedächtnis – direkt berechnet auf dem eigenen Server ohne externe API-Kosten.
-- 📈 **Exponentielles Levelsystem:** Punkte und XP werden pro Chat-Nachricht und Minispiel-Sieg vergeben. Höhere Level erfordern exponentiell mehr Erfahrungspunkte.
-- 💰 **Server-Economy:** Inkrementelles Währungssystem auf Basis einer lokalen, performanten SQLite-Datenbank.
-- 🎮 **Interaktive Spiele:** Klassiker wie Blackjack mit Discord-UI-Buttons und Zahlenraten als Slash-Commands.
-- ⚡ **Moderne Slash-Commands:** Vollständige Einbindung von `discord.app_commands` für eine reibungslose User-Experience.
-- 📦 **Docker-Ready:** Vollständig containerisiert für einfachen Betrieb via Docker Compose und Portainer auf dem Raspberry Pi.
+- **Lokale KI-Integration:** Nutzt Ollama (z. B. Qwen 2.5) für flüssigen Chat mit Kontext-Gedächtnis – direkt berechnet auf dem eigenen Server ohne externe API-Kosten.
+- **Exponentielles Levelsystem:** Punkte und XP werden pro Chat-Nachricht und Minispiel-Sieg vergeben. Höhere Level erfordern exponentiell mehr Erfahrungspunkte.
+- **Server-Economy:** Inkrementelles Währungssystem auf Basis einer lokalen, performanten SQLite-Datenbank.
+- **Interaktive Spiele:** Klassiker wie Blackjack mit Discord-UI-Buttons und Zahlenraten als Slash-Commands.
+- **Moderne Slash-Commands:** Vollständige Einbindung von `discord.app_commands` für eine reibungslose User-Experience.
+- **Docker-Ready:** Vollständig containerisiert für einfachen Betrieb via Docker Compose und Portainer auf dem Raspberry Pi.
 
 ---
 
-## 🎮 Commands
+## Commands
 
-### 🤖 KI & Unterhaltung
+### KI & Unterhaltung
 | Befehl | Beschreibung |
 | :--- | :--- |
 | `/chat [frage]` | Sendet eine Anfrage an das lokale KI-Modell |
 | `/resetbot` | Löscht den aktuellen Chat-Verlauf und setzt den Kontext der KI zurück |
 
-### 📊 Level & Economy
+### Level & Economy
 | Befehl | Beschreibung |
 | :--- | :--- |
 | `/points` | Zeigt dein aktuelles Level, gesammelte XP, Punkte und Fortschritt an |
 | `/top` | Zeigt die Top 10 Highscore-Liste des Servers (sortiert nach Level) |
 
-### 🎲 Minispiele
+### Minispiele
 | Befehl | Beschreibung |
 | :--- | :--- |
 | `/blackjack [bet]` | Starte eine Runde Blackjack mit interaktiven Buttons für Einsatz-Punkte |
 | `/zahlenraten` | Starte das Zahlenraten-Minispiel |
 | `/coinflip [seite]` | Wirf eine Münze und setze auf Kopf oder Zahl |
 
-### 🛠️ Utilities & Tools
+### Utilities & Tools
 | Befehl | Beschreibung |
 | :--- | :--- |
 | `/qrcode [url]` | Erstellt automatisch einen scannbaren QR-Code aus einem Link |
@@ -49,7 +49,7 @@
 
 ---
 
-## 🛠️ Tech-Stack
+## Tech-Stack
 
 - **Sprache:** Python 3.10+
 - **Framework:** `discord.py` (v2.x)
@@ -59,7 +59,7 @@
 
 ---
 
-## 📂 Projektstruktur
+## Projektstruktur
 
 Das Projekt ist modular aufgebaut, um die Wartung zu erleichtern:
 
@@ -75,7 +75,7 @@ BabyBirneBot/
 ```
 ---
 
-## 🚀 Installation & Setup
+## Installation & Setup
 
 ### 1. Repository klonen
 
@@ -107,7 +107,7 @@ docker compose up -d --build
 
 ---
 
-## 🧩 Neue Features hinzufügen 
+## Neue Features hinzufügen 
 
 Um den Bot zu erweitern, musst du eine neue **Cog** im Ordner `cogs/` anlegen.
 
@@ -125,7 +125,7 @@ class Fun(commands.Cog):
 
     @app_commands.command(name="hallo", description="Sagt Hallo zu dir!")
     async def hallo(self, interaction: discord.Interaction):
-        await interaction.response.send_message(f"Hallo {interaction.user.mention}! 👋")
+        await interaction.response.send_message(f"Hallo {interaction.user.mention}!")
 
 async def setup(bot):
     await bot.add_cog(Fun(bot))
