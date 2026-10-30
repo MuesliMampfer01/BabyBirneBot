@@ -4,7 +4,6 @@ from discord.ext import commands
 import sqlite3
 import os
 import math
-import time
 
 class Pointsystem(commands.Cog):
     def __init__(self, bot):
@@ -39,10 +38,14 @@ class Pointsystem(commands.Cog):
     def calc_level(self, xp):
         if xp <= 0:
             return 1
-        return int(math.sqrt(xp / 100)) + 1
+        level = math.log((xp / 100) + 1, 1.35) + 1
+        return int(level)
 
-    def xp_for_level(self, level: int) -> int:
-        return ((level - 1) ** 2) * 100
+    def xp_for_level(self, level):
+        if level <= 1:
+            return 0
+        return int(100 * ((1.35 ** (level - 1)) - 1))
+        
 
     def calc_level_reward(self, level):
         return 100 + (level * 50)
@@ -101,14 +104,7 @@ class Pointsystem(commands.Cog):
 
         user_id = message.author.id
         serv_id = message.guild.id
-        now = time.time()
-
-        last_xp_time = self.xp_cooldowns.get((user_id, serv_id), 0)
-        if now - last_xp_time < 60:
-            return
-
-        self.xp_cooldowns[(user_id, serv_id)] = now
-
+    
         xp_gained = 20
         leveled_up, old_level, new_level, bonus = self.add_xp(user_id, serv_id, xp_gained)
 
@@ -125,19 +121,42 @@ class Pointsystem(commands.Cog):
     @app_commands.command(name="points", description="Zeigt dein Level und deine Punkte an")
     @app_commands.checks.cooldown(1, 5.0, key=lambda i: i.guild_id or i.user.id)
     async def balance(self, interaction: discord.Interaction):
+        
         xp, points = self.get_user_data(interaction.user.id, interaction.guild.id)
         level = self.calc_level(xp)
+        
+        # Berechnung aktueller XP Fortschritt
+        current_level_start_xp = self.xp_for_level(level)
         next_level_xp = self.xp_for_level(level + 1)
+        
+        xp_in_current_level = xp - current_level_start_xp
+        xp_for_next_level_total = next_level_xp - current_level_start_xp
         xp_needed = next_level_xp - xp
 
-        embed = discord.Embed(title=f"📊 Profil von {interaction.user.display_name}", color=discord.Color.blue())
-        embed.add_field(name="💰 Punkte", value=f"**{points:,}**", inline=True)
-        embed.add_field(name="⭐ Level", value=f"**{level}**", inline=True)
-        embed.add_field(name="✨ XP Gesamt", value=f"**{xp:,}** XP", inline=True)
-        embed.add_field(name="🎯 Nächstes Level", value=f"Noch **{xp_needed:,}** XP", inline=False)
+        embed = discord.Embed(
+            title=interaction.user.display_name,
+            description=f"Status-Übersicht für {interaction.guild.name}",
+            color=discord.Color.dark_embed()  
+        )
+        
+        # Profilbild des Users 
+        embed.set_thumbnail(url=interaction.user.display_avatar.url)
+
+        embed.add_field(name="Punkte", value=f"{points:,}", inline=True)
+        embed.add_field(name="Level", value=f"{level}", inline=True)
+        embed.add_field(name="Gesamt-XP", value=f"{xp:,}", inline=True)
+        
+        # Fortschrittsbalken
+        progress = int((xp_in_current_level / max(1, xp_for_next_level_total)) * 10)
+        bar = "█" * progress + "░" * (10 - progress)
+        
+        embed.add_field(
+            name="Fortschritt", 
+            value=f"`[{bar}]` ({xp_in_current_level:,} / {xp_for_next_level_total:,} XP — noch {xp_needed:,} XP)", 
+            inline=False
+        )
 
         await interaction.response.send_message(embed=embed)
-
     @app_commands.command(name="top", description="Zeigt die Bestenliste dieses Servers an")
     @app_commands.checks.cooldown(1, 5.0, key=lambda i: i.guild_id or i.user.id)
     async def leaderboard(self, interaction: discord.Interaction):
