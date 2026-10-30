@@ -13,37 +13,6 @@ class Gambling(commands.Cog):
         self.bot = bot
         self.api_url = "http://frogAPI:4444/randomfrog"
 
-    #---------Hilfsmethoden für Blackjack----------
-    def create_deck(self):
-        colors_list = ["♠️", "♥️", "♦️", "♣️"]
-        values_list = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
-        deck = [(values, colors) for colors in colors_list for values in values_list]
-        random.shuffle(deck)
-        return deck
-
-    def calc_hand(self, hand):
-        value = 0
-        aces = 0
-
-        for card, color in hand:
-            if card in ["J", "Q", "K"]:
-                value += 10
-            elif card == "A":
-                aces += 1
-                value += 11
-            else:
-                value += int(card)
-
-        #Asse behandeln (wenn über 21, Ass = 1
-        while value > 21 and aces > 0:
-            value -= 10
-            aces -= 1
-
-        return value
-
-    def format_hand(self, hand):
-        return ", ".join([f"{color}{card}" for card, color in hand])
-
     #--------Punktevergabe---------
     async def give_reward(self, interaction: discord.Interaction, amount: int):
         pointsys = self.bot.get_cog('Pointsystem')
@@ -137,100 +106,6 @@ class Gambling(commands.Cog):
             except asyncio.TimeoutError:
                 await interaction.channel.send(f"Zeit abgelaufen! Die gesuchte Zahl war **{to_be_found}**.")
                 break
-
-    #--------BlackJack--------
-    @commands.cooldown(1, 30, commands.BucketType.guild)
-    @commands.command(name="blackjack", aliases=["bj"], help="Spiele eine Runde Blackjack!")
-    async def blackjack(self, ctx, bet: int):
-        points_cog = self.bot.get_cog('Pointsystem')
-
-        if not points_cog:
-            await ctx.send("Punktesystem nicht geladen")
-            return
-
-        if bet <= 0:
-            await ctx.reply("Bitte setze mindestens 1 Punkt")
-            return
-
-        user_id = ctx.author.id
-        serv_id = ctx.guild.id
-        account = points_cog.get_points(user_id, serv_id)
-
-        if account < bet:
-            await ctx.reply(f"Du hast nicht genug Punkte! Dein Kontostand: **{account}**")
-            return
-
-        deck = self.create_deck()
-        player_hand = [deck.pop(), deck.pop()]
-        dealer_hand = [deck.pop(), deck.pop()]
-
-        playing = True
-
-        while playing:
-            player_value = self.calc_hand(player_hand)
-
-            if player_value > 21:
-                embed_bust = discord.Embed(title="💥 Bust! - Überkauft", color=discord.Color.red())
-                embed_bust.add_field(name="Deine End-Hand",value=f"{self.format_hand(player_hand)} (**{player_value}**)", inline=False)
-                embed_bust.description = f"Das war zu viel! Du verlierst deinen Einsatz von **{bet}** Punkten."
-
-                await ctx.send(embed=embed_bust)
-
-                points_cog.add_points(user_id, serv_id, -bet)
-                return
-
-            embed = discord.Embed(title="🃏 Blackjack", color=discord.Color.blue())
-            embed.add_field(name="Deine Hand", value=f"{self.format_hand(player_hand)} (**{player_value}**)", inline=False)
-            embed.add_field(name="Dealer Hand", value=f"{dealer_hand[0][1]}{dealer_hand[0][0]}, 🎴 ?", inline=False)
-            embed.set_footer(text="Schreibe 'hit' (ziehen) oder 'stand' (bleiben)")
-
-            await ctx.send(embed=embed)
-
-            def check(m):
-                return m.author == ctx.author and m.channel == ctx.channel and m.content.lower() in ["hit", "stand", "h", "s"]
-
-            try:
-                antwort = await self.bot.wait_for("message", check=check, timeout=30.0)
-            except asyncio.TimeoutError:
-                await ctx.send(f"Zeit abgelaufen! Du bleibst stehen")
-                break
-
-            if antwort.content.lower() in ["hit", "h"]:
-                player_hand.append(deck.pop())
-            else:
-                break
-
-        player_value = self.calc_hand(player_hand)
-        dealer_value = self.calc_hand(dealer_hand)
-
-        while dealer_value < 17:
-            dealer_hand.append(deck.pop())
-            dealer_value = self.calc_hand(dealer_hand)
-
-        embed_end = discord.Embed(title="🃏 Blackjack - Ergebnis", color=discord.Color.gold())
-        embed_end.add_field(name="Deine Hand", value=f"{self.format_hand(player_hand)} (**{player_value}**)", inline=True)
-        embed_end.add_field(name="Dealer Hand", value=f"{self.format_hand(dealer_hand)} (**{dealer_value}**)", inline=True)
-
-        if dealer_value > 21:
-            embed_end.description = f"🎉 Dealer Bust! Du gewinnst **{bet}** Punkte!"
-            embed_end.color = discord.Color.green()
-            points_cog.add_points(user_id, serv_id, bet)
-
-        elif dealer_value > player_value:
-            embed_end.description = f"❌ Dealer gewinnt. Du verlierst **{bet}** Punkte!"
-            embed_end.color = discord.Color.red()
-            points_cog.add_points(user_id, serv_id, -bet)
-
-        elif dealer_value < player_value:
-            embed_end.description = f"🎉 Glückwunsch! Du gewinnst **{bet}** Punkte!"
-            embed_end.color = discord.Color.green()
-            points_cog.add_points(user_id, serv_id, bet)
-
-        else:
-            embed_end.description = "🤝 Unentschieden (Push). Du behältst deinen Einsatz."
-            embed_end.color = discord.Color.light_gray()
-
-        await ctx.send(embed=embed_end)
 
     #--------Hirse--------
     @commands.cooldown(1, 10, commands.BucketType.guild)
