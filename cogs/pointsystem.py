@@ -157,34 +157,39 @@ class Pointsystem(commands.Cog):
         )
 
         await interaction.response.send_message(embed=embed)
-    @app_commands.command(name="top", description="Zeigt die Bestenliste dieses Servers an")
+        
+    @app_commands.command(name="top", description="Zeigt die Bestenliste nach Level an")
     @app_commands.checks.cooldown(1, 5.0, key=lambda i: i.guild_id or i.user.id)
     async def leaderboard(self, interaction: discord.Interaction):
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
+            
             cursor.execute("""
-                SELECT user_id, points, xp FROM serv_points
+                SELECT user_id, xp, points FROM serv_points
                 WHERE serv_id = ?
-                ORDER BY points DESC LIMIT 10
+                ORDER BY xp DESC LIMIT 10
                 """, (interaction.guild.id,))
 
             top_users = cursor.fetchall()
 
         if not top_users:
-            await interaction.response.send_message("Auf diesem Server hat noch niemand Punkte!", ephemeral=True)
+            await interaction.response.send_message("Auf diesem Server gibt es noch keine Daten.", ephemeral=True)
             return
 
-        embed = discord.Embed(title=f"🏆 Top 10 auf {interaction.guild.name} 🏆", color=discord.Color.gold())
-        text = ""
-        for i, (user_id, points, xp) in enumerate(top_users, start=1):
+        embed = discord.Embed(
+            title=f"Bestenliste — {interaction.guild.name}",
+            color=discord.Color.dark_embed()
+        )
+
+        lines = []
+        for i, (user_id, xp, points) in enumerate(top_users, start=1):
             member = interaction.guild.get_member(user_id)
             name = member.display_name if member else "Unbekannter User"
             level = self.calc_level(xp)
 
-            medaille = "🥇" if i == 1 else "🥈" if i == 2 else "🥉" if i == 3 else f"#{i}"
-            text += f"{medaille} **{name}**: {points:,} Punkte *(Level {level})*\n"
+            lines.append(f"**{i}. {name}** — Level {level} `({xp:,} XP)` • {points:,} Punkte")
 
-        embed.description = text
+        embed.description = "\n".join(lines)
         await interaction.response.send_message(embed=embed)
 
 async def setup(bot):
