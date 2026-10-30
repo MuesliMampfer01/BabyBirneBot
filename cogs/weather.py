@@ -8,73 +8,47 @@ class Weather(commands.Cog):
         self.bot = bot
         self.api_url = "http://frogAPI:4444/weather"
 
-    def get_weather_info(self, code):
-        if code == 0:
-            return "☀️", "Klarer Himmel"
-        elif code in [1, 2, 3]:
-            return "⛅", "Bewölkt"
-        elif code in [45, 48]:
-            return "🌫️", "Nebel"
-        elif code in [51, 53, 55, 56, 57]:
-            return "🌧️", "Nieselregen"
-        elif code in [61, 63, 65, 66, 67, 80, 81, 82]:
-            return "☔", "Regen"
-        elif code in [71, 73, 75, 77, 85, 86]:
-            return "❄️", "Schnee"
-        elif code in [95, 96, 99]:
-            return "⛈️", "Gewitter"
-        return "🌡️", "Unbekannt"
-
-
-    @app_commands.command(name="weather", description="Zeigt das aktuelle Wetter an eines Wunschortes an")
-    @app_commands.describe(city="Gebe einen Ort ein")
-    @app_commands.checks.cooldown(1, 5, key=lambda i: i.guild_id or i.user_id)
-    # * = Name geht auch mit Leerzeichen
+    @app_commands.command(name="weather", description="Zeigt das aktuelle Wetter für einen Wunschort an")
+    @app_commands.describe(city="Name der Stadt oder des Ortes")
+    @app_commands.checks.cooldown(1, 5, key=lambda i: i.guild_id or i.user.id)
     async def weather(self, interaction: discord.Interaction, *, city: str):
-
         await interaction.response.defer()
 
-        #Daten von FrogAPI abrufen
+        # Daten von FrogAPI abrufen
         try:
             async with aiohttp.ClientSession() as session:
-                #Stadt wird als Parameter an die FrogAPI übergeben
                 async with session.get(self.api_url, params={"city": city}) as resp:
                     if resp.status == 404:
-                        await interaction.followup.send(f"Konnte den Ort **{city}** auf der Landkarte nicht finden...")
+                        await interaction.followup.send(f"Der Ort **{city}** wurde nicht gefunden.")
                         return
                     elif resp.status != 200:
-                        await interaction.followup.send("FrogAPI gerade nicht erreichbar")
+                        await interaction.followup.send("Die Wetter-API ist derzeit nicht erreichbar.")
                         return
 
                     data = await resp.json()
 
         except Exception as e:
-            await interaction.followup.send(f"Verbindungsfehler: {e}")
+            await interaction.followup.send(f"Verbindungsfehler zur API: {e}")
             return
 
-        #Wetter in Emojis übersetzen
-        emoji, description = self.get_weather_info(data["weather_code"])
-        temperature = data["temperature"]
+        # Ort mit Land formatieren (falls von API geliefert)
+        location_title = f"{data['city']}, {data['country']}" if data.get("country") else data["city"]
 
-        #dynamische Farbe je nach Temperatur
-        if temperature <= 15:
-            embed_color = discord.Color.blue()
-
-        elif 15 < temperature <= 25:
-            embed_color = discord.Color.orange()
-
-        else:
-            embed_color = discord.Color.red()
-
-        #Embed aufbauen
+        # Schlichtes, dunkles Embed (passend zum Gesamtdesign des Bots)
         embed = discord.Embed(
-            title=f"Wetter in {data['city']} {emoji}",
-            description=f"**{description}**",
-            color=embed_color
+            title=f"Wetter — {location_title}",
+            description=f"**{data['condition']}**",
+            color=discord.Color.dark_embed()
         )
 
-        embed.add_field(name="Aktuell", value=f"{temperature} °C", inline=True)
-        embed.add_field(name="Gefühlt", value=f"{data['feels_like']} °C", inline=True)
+        # Aufgegliederte Werte
+        embed.add_field(
+            name="Temperatur", 
+            value=f"**{data['temperature']} °C**\n*(Min: {data['temp_min']} °C / Max: {data['temp_max']} °C)*", 
+            inline=True
+        )
+        embed.add_field(name="Wind", value=f"{data['wind_speed']} km/h", inline=True)
+        embed.add_field(name="Luftfeuchtigkeit", value=f"{data['humidity']} %", inline=True)
 
         await interaction.followup.send(embed=embed)
 
