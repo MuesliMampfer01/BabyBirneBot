@@ -1,40 +1,61 @@
 # 🤖 BabyBirneBot
 
-> Ein kleiner Discord-Bot mit integrierter KI-Unterstützung, modularem Cog-System und integrierten Spielen.
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?logo=python&logoColor=white)](https://www.python.org/)
+[![discord.py](https://img.shields.io/badge/discord.py-2.x-5865F2.svg?logo=discord&logoColor=white)](https://discordpy.readthedocs.io/)
+[![Ollama](https://img.shields.io/badge/Ollama-Local_AI-black.svg?logo=ollama&logoColor=white)](https://ollama.com/)
+[![Docker](https://img.shields.io/badge/Docker-Supported-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
+
+> Ein schlanker, modularer Discord-Bot mit integrierter KI-Unterstützung (Ollama), lokalem Punkte- & Levelsystem und Minispielen – optimiert für das Self-Hosting auf einem Raspberry Pi.
 
 ---
 
 ## ✨ Features
 
-* **Intelligenter KI-Chat:** Nutzt eine kleine lokale LLM für kleine Unterhaltungen und besitzt dazu ein minimales Kontext-Gedächtnis.
-* **Modulare Architektur:** Dank des `discord.py`-Cog-Systems können neue Funktionen einfach hinzugefügt oder entfernt werden.
-* **Moderne Slash-Commands:** Voll integrierte Interaktionen (`/`) für eine saubere Benutzererfahrung in Discord.
-* **Sicher & Lokal:** Läuft komplett selbstgehostet auf eigener Hardware (Raspberry Pi via Docker & Portainer).
+- 🤖 **Lokale KI-Integration:** Nutzt Ollama (z. B. Qwen 2.5) für flüssigen Chat mit Kontext-Gedächtnis – direkt berechnet auf dem eigenen Server ohne externe API-Kosten.
+- 📈 **Exponentielles Levelsystem:** Punkte und XP werden pro Chat-Nachricht und Minispiel-Sieg vergeben. Höhere Level erfordern exponentiell mehr Erfahrungspunkte.
+- 💰 **Server-Economy:** Inkrementelles Währungssystem auf Basis einer lokalen, performanten SQLite-Datenbank.
+- 🎮 **Interaktive Spiele:** Klassiker wie Blackjack mit Discord-UI-Buttons und Zahlenraten als Slash-Commands.
+- ⚡ **Moderne Slash-Commands:** Vollständige Einbindung von `discord.app_commands` für eine reibungslose User-Experience.
+- 📦 **Docker-Ready:** Vollständig containerisiert für einfachen Betrieb via Docker Compose und Portainer auf dem Raspberry Pi.
 
 ---
 
-## 🎮 Commands 
+## 🎮 Commands
 
+### 🤖 KI & Unterhaltung
 | Befehl | Beschreibung |
-| --- | --- |
-| `/chat [Frage]` | Stellt eine Frage an die lokale KI |
-| `/resetbot` | Löscht den aktuellen Chat-Verlauf/Gedächtnis des Bots |
-| `/qrcode [URL]` | Erstellt aus einem https://-Link einen QR-Code |
-| `/weather [Ort]` | Gibt das aktuelle Wetter an dem eingegebenen Ort wider |
-| `/coinflip [Kopf, Zahl]` | Lässt dich Coinflip spielen |
-| `/blackjack [bet]` | Lässt eine Runde Blackjack mit Einsatz spielen |
-| `/points` | Zeigt dir dein aktuelles Level und deinen Punktestand |
-| `/top` | Gibt die Top 10 an Level auf dem jeweiligen Server zurück |
-| *fehlende Dokumentation, weitere Befehle werden künftig eingetragen* |  |
+| :--- | :--- |
+| `/chat [frage]` | Sendet eine Anfrage an das lokale KI-Modell |
+| `/resetbot` | Löscht den aktuellen Chat-Verlauf und setzt den Kontext der KI zurück |
+
+### 📊 Level & Economy
+| Befehl | Beschreibung |
+| :--- | :--- |
+| `/points` | Zeigt dein aktuelles Level, gesammelte XP, Punkte und Fortschritt an |
+| `/top` | Zeigt die Top 10 Highscore-Liste des Servers (sortiert nach Level) |
+
+### 🎲 Minispiele
+| Befehl | Beschreibung |
+| :--- | :--- |
+| `/blackjack [bet]` | Starte eine Runde Blackjack mit interaktiven Buttons für Einsatz-Punkte |
+| `/zahlenraten` | Starte das Zahlenraten-Minispiel |
+| `/coinflip [seite]` | Wirf eine Münze und setze auf Kopf oder Zahl |
+
+### 🛠️ Utilities & Tools
+| Befehl | Beschreibung |
+| :--- | :--- |
+| `/qrcode [url]` | Erstellt automatisch einen scannbaren QR-Code aus einem Link |
+| `/weather [ort]` | Fragt die aktuelle Wettervorhersage für einen Ort ab |
 
 ---
 
 ## 🛠️ Tech-Stack
 
-* **Sprache:** Python 3.10+
-* **Bibliothek:** `discord.py`
-* **KI-Backend:** Ollama 
-* **Hosting:** Docker & Portainer auf Raspberry Pi Server 
+- **Sprache:** Python 3.10+
+- **Framework:** `discord.py` (v2.x)
+- **KI-Backend:** [Ollama](https://ollama.com/) 
+- **Datenbank:** SQLite (`data/points.db`)
+- **Deployment:** Docker & Docker Compose (Host: Raspberry Pi OS / Portainer)
 
 ---
 
