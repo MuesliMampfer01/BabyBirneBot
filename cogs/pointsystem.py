@@ -110,11 +110,15 @@ class Pointsystem(commands.Cog):
 
         if leveled_up:
             embed = discord.Embed(
-                title="🎉 LEVEL UP!",
-                description=f"{message.author.mention} ist von **Level {old_level}** auf **Level {new_level}** aufgestiegen!",
-                color=discord.Color.gold()
+                title="Level Up",
+                description=f"{message.author.mention} ist von **Level {old_level}** auf **Level {new_level}** aufgestiegen.",
+                color=discord.Color.dark_embed()
             )
-            embed.add_field(name="💰 Belohnungs-Bonus", value=f"**+{bonus} Punkte** erhalten!")
+            embed.set_thumbnail(url=message.author.display_avatar.url)
+            
+            if bonus > 0:
+                embed.add_field(name="Belohnung", value=f"+{bonus:,} Punkte", inline=False)
+
             await message.channel.send(embed=embed)
 
     # --- SLASH COMMANDS ---
