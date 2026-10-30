@@ -90,48 +90,52 @@ class Gambling(commands.Cog):
         else:
             await msg.edit(content=f"**{result.capitalize()}!** Schade, leider ist das die falsche Seite")
 
-    #---------Zahlenraten---------
-    @commands.cooldown(1, 30, commands.BucketType.guild)
-    @commands.command(name="zahlenraten",aliases=["zr", "raten"],help="Errate die gesuchte Zahl")
-    async def zahlenraten(self, ctx):
-        gesuchte_zahl = random.randint(1, 100)
-        versuche = 5
-        await ctx.send("**Willkommen beim Zahlenraten!**\nEs wird eine Zahl zwischen 1 und 100 gesucht.\nDu hast 5 Versuche um die geheime Zahl zu finden!")
+    # -------- Zahlenraten --------
+    @app_commands.command(name="zahlenraten", description="Errate die gesuchte Zahl zwischen 1 und 100")
+    @app_commands.checks.cooldown(1, 30.0, key=lambda i: i.guild_id or i.user.id)
+    async def zahlenraten(self, interaction: discord.Interaction):
+        to_be_found = random.randint(1, 100)
+        tries = 5
+
+        await interaction.response.send_message(
+            "**Zahlenraten**\nEs wird eine Zahl zwischen 1 und 100 gesucht.\nDu hast 5 Versuche!"
+        )
 
         def check(m):
-            return m.author == ctx.author and m.channel == ctx.channel
+            return m.author == interaction.user and m.channel == interaction.channel
 
         while True:
             try:
                 msg = await self.bot.wait_for("message", check=check, timeout=60.0)
-                geratene_zahl = int(msg.content)
+                guessed = int(msg.content)
 
-                if geratene_zahl == gesuchte_zahl:#
-                    punkte = 50
-                    hat_punkte_bekommen = await self.give_reward(ctx, punkte)
+                if guessed == to_be_found:
+                    points = 50
+                    got_points = await self.give_reward(interaction, points)
 
-                    zusatz = ""
-                    if hat_punkte_bekommen:
-                        zusatz = f"\n **+{punkte} Punkte** wurden dir gutgeschrieben "
-                    await ctx.send(f"Du hast die richtige Zahl gefunden!  Die gesuchte Zahl war {gesuchte_zahl}!{zusatz}")
+                    extra = ""
+                    if got_points:
+                        extra = f"\n+{points:,} Punkte wurden dir gutgeschrieben."
+                    
+                    await interaction.channel.send(f"Richtig! Die gesuchte Zahl war **{to_be_found}**.{extra}")
                     break
 
-                versuche -= 1
+                tries -= 1
 
-                if versuche == 0:
-                    await ctx.send(f"Du hast verloren! Die gesuchte Zahl war {gesuchte_zahl}!")
+                if tries == 0:
+                    await interaction.channel.send(f"Verloren! Die gesuchte Zahl war **{to_be_found}**.")
                     break
 
-                if geratene_zahl > gesuchte_zahl:
-                    await ctx.send(f"Meine Zahl ist niedriger! (Noch {versuche} Versuch(e))")
+                if guessed > to_be_found:
+                    await interaction.channel.send(f"Meine Zahl ist niedriger. (Noch {tries} Versuch(e))")
                 else:
-                    await ctx.send(f"Meine Zahl ist höher! (Noch {versuche} Versuch(e))")
+                    await interaction.channel.send(f"Meine Zahl ist höher. (Noch {tries} Versuch(e))")
 
             except ValueError:
-                await ctx.send("Bitte gib eine echte Zahl ein!")
+                await interaction.channel.send("Bitte gib eine gültige Zahl ein.")
 
             except asyncio.TimeoutError:
-                await ctx.send(f"Zu langsam! Die gesuchte Zahl war {gesuchte_zahl}")
+                await interaction.channel.send(f"Zeit abgelaufen! Die gesuchte Zahl war **{to_be_found}**.")
                 break
 
     #--------BlackJack--------
