@@ -106,7 +106,7 @@ class Blackjack(commands.Cog):
 
         user_id = interaction.user.id
         serv_id = interaction.guild_id
-        account = points_cog.get_points(user_id, serv_id)
+        xp, account = points_cog.get_user_data(user_id, serv_id)
 
         if account < bet:
             await interaction.response.send_message(f"Nicht genug Punkte! Dein Kontostand: **{account:,}**", ephemeral=True)
