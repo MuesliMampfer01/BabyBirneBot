@@ -22,6 +22,8 @@
 | `/qrcode [URL]` | Erstellt aus einem https://-Link einen QR-Code |
 | `/weather [Ort]` | Gibt das aktuelle Wetter an dem eingegebenen Ort wider |
 | `/coinflip [Kopf, Zahl]` | Lässt dich Coinflip spielen |
+| `/points` | Zeigt dir dein aktuelles Level und deinen Punktestand |
+| `/top` | Gibt die Top 10 an Level auf dem jeweiligen Server zurück |
 | *fehlende Dokumentation, weitere Befehle werden künftig eingetragen* |  |
 
 ---
