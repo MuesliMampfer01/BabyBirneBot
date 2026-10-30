@@ -96,6 +96,35 @@ class Pointsystem(commands.Cog):
 
             return leveled_up, old_level, new_level, bonus
 
+    def add_points(self, user_id, serv_id, amount):
+        """Fügt einem User Punkte hinzu oder zieht Punkte ab (wenn amount negativ ist)."""
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+
+            # Neuer Eintrag, falls kein eintrag für User
+            cursor.execute("""
+                INSERT OR IGNORE INTO serv_points (user_id, serv_id, xp, points)
+                VALUES (?, ?, 0, 0)
+                """, (user_id, serv_id))
+
+            # Punkte aktualisieren 
+            cursor.execute("""
+                UPDATE serv_points
+                SET points = points + ?
+                WHERE user_id = ? AND serv_id = ?
+                """, (amount, user_id, serv_id))
+
+            conn.commit()
+
+            # neuen Punktestand zurück
+            cursor.execute("""
+                SELECT points FROM serv_points 
+                WHERE user_id = ? AND serv_id = ?
+                """, (user_id, serv_id))
+            res = cursor.fetchone()
+
+            return res[0] if res else 0
+
     # --- AUTOMATISCHE CHAT-XP ---
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
